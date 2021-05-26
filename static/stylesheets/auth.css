@@ -1,0 +1,9 @@
+form{
+    width: 50%;
+}
+
+@media screen and (max-width: 975px) {
+    form {
+       width: 100%;
+    }
+}

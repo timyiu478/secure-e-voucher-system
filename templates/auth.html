@@ -1,0 +1,104 @@
+{% extends "index.html" %}
+{% block title %}HKID Authentication{% endblock title%}
+{% block content%}
+{% block css %} 
+<link  rel="stylesheet" type="text/css" href="{{ url_for('static', filename='stylesheets/auth.css') }}">
+{% endblock css %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='scripts/formValidation.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/jsbn.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/prng4.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/rng.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/rsa.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/rsaEncryption.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/sha256.js') }}"></script>
+<script>
+  function submitAuthForm(){
+    if(validateForm("authForm")){
+      let inputs = document.getElementsByClassName("form-control authForm");
+      let encrypted_inputs = document.getElementsByClassName("encrypted_inputs");
+      for(let i=0;i<inputs.length;i++){
+        encrypted_inputs[i].value =  rsaEncryt(sha256(inputs[i].value));
+        //console.log(inputs[i].value)
+        //console.log(sha256(inputs[i].value))
+      }
+      let sex = document.getElementById('sex');
+      document.getElementById("encrypted_sex").value = rsaEncryt(sha256(sex.value));
+      //console.log(sha256(sex.value))  
+      document.getElementById("authForm").reset();
+      document.getElementById("encrypted_authForm").submit();
+    }
+  }
+</script>
+{% endblock scripts %}
+
+
+<form class="shadow-lg p-3 mx-auto mb-5 bg-body rounded mt-5 needs-validation" autocomplete="off" id="authForm">
+  <label class="h2">Authentication</label>
+  <div class="row mt-3">
+    <div class="col-md-4">
+      <label for="lastName" class="form-label">Last name</label>
+      <input type="text" class="form-control authForm" id="lastName" required>
+      <div class="invalid-feedback authForm">
+        Please provide your last name.
+      </div>
+    </div>
+    <div class="col-md-4">
+      <label for="firstName" class="form-label">First name</label>
+      <input type="text" class="form-control authForm" id="firstName" required>
+      <div class="invalid-feedback authForm">
+        Please provide your first name.
+      </div>
+    </div>
+    <div class="col-md-4">
+      <label for="sex" class="form-label">Sex</label>
+      <select class="form-select authForm" name="sex" id="sex" required>
+        <option value="">select sex</option>
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+      </select>
+      <div class="invalid-feedback" id="sex-fb">
+        Please provide your sex.
+      </div>
+    </div>
+  </div>
+  <div class="row mt-3">
+    <div class="col-md-6">
+      <label for="birthday" class="form-label">Birthday</label>
+      <input type="date" class="form-control authForm" name="birthday" id="birthday" required>
+      <div class="invalid-feedback authForm">
+        Please provide your birthday.
+      </div>
+    </div>
+    <div class="col-md-6">
+      <label for="hkid" class="form-label">HKID</label>
+      <input type="text" class="form-control authForm" name="hkid" id="HKID" required>
+      <div class="invalid-feedback authForm">
+        Please provide your HKID.
+      </div>
+    </div>
+  </div>
+  <div class="row mt-4">
+    <div class="col-md-2">
+      <button onclick="submitAuthForm()" type="button" id="submitAuthFormButton" class="btn btn-success btn-lg" onclick="authFormSubmit()">Submit</button>
+    </div>
+    <div class="col-md-5 mb-3">
+      <a href="/account"><button type="button" class="btn btn-outline-success btn-lg">Back to account</button></a>
+    </div>
+  </div>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category,message in messages %}<div class="alert alert-{{category}}" role="alert" style="text-align: center;">{{message}}</div>{% endfor %}
+    {% endif %}
+  {% endwith %}
+</form>
+<form id="encrypted_authForm" method="POST" action="/auth_handling">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+  <input type="hidden" id="encrypted_lastname" name="encrypted_lastname" class="encrypted_inputs">
+  <input type="hidden" id="encrypted_firstname" name="encrypted_firstname" class="encrypted_inputs">
+  <input type="hidden" id="encrypted_sex" name="encrypted_sex">
+  <input type="hidden" id="encrypted_birthday" name="encrypted_birthday" class="encrypted_inputs">
+  <input type="hidden" id="encrypted_hkid" name="encrypted_hkid" class="encrypted_inputs">
+</form>
+
+{% endblock content%}

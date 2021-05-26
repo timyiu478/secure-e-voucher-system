@@ -1,0 +1,91 @@
+{% extends "index.html" %}
+{% block title %}Coupons{% endblock title%}
+{% block scripts%}
+<script src="{{ url_for('static', filename='scripts/jsbn.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/prng4.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/rng.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/rsa.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/rsaEncryption.js') }}"></script>
+<script>
+    function active_pane(id){
+
+    let tab_pane = document.getElementsByClassName("tab-pane");
+    let i;
+
+    for(i=0;i<tab_pane.length;i++){
+    tab_pane[i].classList.remove("active");
+    tab_pane[i].classList.add("fade");
+    }
+
+    document.getElementById(id).classList.add("active");
+    document.getElementById(id).classList.remove("fade");
+}
+</script>
+{% endblock scripts%}
+{% block css %}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='stylesheets/coupons.css') }}">
+{% endblock css %}
+{% block content%}
+    <div id="coupons" class="shadow-lg p-3 mb-5 bg-body rounded mt-3 mx-auto">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category,message in messages %}<div class="alert alert-{{category}}" role="alert" style="text-align: center;">{{message}}</div>{% endfor %}
+        {% endif %}
+        {% endwith %}
+        <nav class="nav nav-tabs nav-justified mb-3" id="coupons-tab" role="tablist">
+            <button onclick="active_pane('coupons-available')" class="nav-link" id="coupons-available-tab" data-bs-toggle="tab" href="#coupons-available"  role="tab" >Available</button>
+            <button onclick="active_pane('coupons-expired')" class="nav-link" id="coupons-expired-tab" data-bs-toggle="tab" href="#coupons-expired"  role="tab" >Expired</button>
+            <button onclick="active_pane('coupons-useup')" class="nav-link" id="coupons-useup-tab" data-bs-toggle="tab" href="#coupons-useup"  role="tab" >Useup</button>
+        </nav>
+
+        <div class="tab-content" id="coupons-tabContent">
+            <div class="tab-pane fade" role="tabpanel" id="coupons-available">
+                <div class="d-flex justify-content-center flex-wrap mt-2 mx-auto">
+                    {% for i in range(available_coupons|length)%}
+                    <form method="POST" action="/coupon/{{available_coupons[i].id}}" class="m-2">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        <button type="submit" class="btn btn-outline-success text-dark" style="text-align: left;">
+                            <p class="h5"><strong>ID:</strong>{{available_coupons[i].id}}</p>
+                            <p class="h5"><strong>Name:</strong>{{available_coupons[i].name}}</p>
+                            <p class="h5"><strong>Amount:</strong>{{available_coupons[i].amount}}</p>
+                            <p class="h5"><strong>Quantity:</strong>{{available_coupons_quantities[i]}}</p>
+                            <p class="h5"><strong>Expire Date:</strong>{{available_coupons[i].expire_date}}</p>
+                            <p class="h5"><strong>Issue Date:</strong>{{available_coupons[i].issuance_date}}</p>
+                        </button>
+                    </form>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="tab-pane fade" id="coupons-expired" role="tabpanel">
+                <div class="d-flex justify-content-center flex-wrap mt-2 mx-auto">
+                    {% for coupon in expired_coupons%}
+                    <form class="m-2">
+                        <button type="button" class="btn btn-outline-secondary text-dark" style="text-align: left;">
+                            <p class="h5"><strong>ID:</strong>{{coupon.id}}</p>
+                            <p class="h5"><strong>Name:</strong>{{coupon.name}}</p>
+                            <p class="h5"><strong>Amount:</strong>{{coupon.amount}}</p>
+                            <p class="h5"><strong>Expire Date:</strong>{{coupon.expire_date}}</p>
+                            <p class="h5"><strong>Issue Date:</strong>{{coupon.issuance_date}}</p>
+                        </button>
+                    </form>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="tab-pane fade" id="coupons-useup" role="tabpanel">
+                <div class=" d-flex justify-content-center flex-wrap mt-2 mx-auto">
+                    {% for coupon in use_up_coupons%}
+                    <form class="m-2">
+                        <button type="button" class="btn btn-outline-secondary text-dark" style="text-align: left;">
+                            <p class="h5"><strong>ID:</strong>{{coupon.id}}</p>
+                            <p class="h5"><strong>Name:</strong>{{coupon.name}}</p>
+                            <p class="h5"><strong>Amount:</strong>{{coupon.amount}}</p>
+                            <p class="h5"><strong>Expire Date:</strong>{{coupon.expire_date}}</p>
+                            <p class="h5"><strong>Issue Date:</strong>{{coupon.issuance_date}}</p>
+                        </button>
+                    </form>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content%}

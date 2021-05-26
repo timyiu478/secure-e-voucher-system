@@ -1,0 +1,14 @@
+#ac{
+    width: 50%;
+    margin: auto;
+}
+
+a{
+    text-decoration:none;
+}
+
+@media screen and (max-width: 975px) {
+    #ac {
+       width: 100%;
+    }
+}

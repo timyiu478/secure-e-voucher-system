@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<hmtl>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
+        <link  rel="stylesheet" type="text/css" href="{{ url_for('static', filename='stylesheets/coupon.css') }}">
+        <link  rel="stylesheet" type="text/css" href="{{ url_for('static', filename='stylesheets/transaction.css') }}">
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js" integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf" crossorigin="anonymous"></script>
+        <title>COMP3334 Project Group 2 {% block title%}{% endblock title%}</title>
+        {% block css %}{% endblock css %}
+        <style>
+            .nav-item{
+                text-align: center;
+            }
+        </style>
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-light" style="background-color:#00BFA6">
+            <div class="container-fluid">
+                <a class="navbar-brand fs-4 ms-2">
+                  <img src="{{ url_for('static', filename='image/e-voucher-icon.png') }}" alt="e-voucher icon" width="30" height="24" class="d-inline-block align-text-top"  style="color: #fff;">
+                  E-Voucher
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarText">
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                        <li class="nav-item me-5">
+                            <a {% if page == 'qrcode' %}class="nav-link active"{% else %}class="nav-link"{% endif %} href="/select_coupon")}}><i class="fas fa-qrcode fa-lg" id="qrcode"></i></a>
+                            <label for="qrcode">QR Code</label>
+                        </li>
+                        <li class="nav-item me-5">
+                            <a {% if page == 'record' %}class="nav-link active"{% else %}class="nav-link"{% endif %} aria-current="page" href="/transaction"><i class="far fa-folder fa-lg" id="record"></i></i></a>
+                            <label for="record">Record</label>
+                        </li>
+                        <li class="nav-item me-5">
+                            <a {% if page == 'account' %}class="nav-link active"{% else %}class="nav-link"{% endif %} href="{{url_for('account')}}"><i class="far fa-user fa-lg" id="account"></i></a>
+                            <label for="account">Account</label>
+                        </li>
+                    </ul>
+                </div>
+              </div>
+        </nav>
+        <div class="content" style="height: 100%;width: 100%;">
+            {% block content %}
+            {% endblock content %}        
+        </div>
+        {% block scripts%}
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+        <script type="text/javascript">
+            var csrf_token = "{{ csrf_token() }}";
+        
+            $.ajaxSetup({
+                beforeSend: function(xhr, settings) {
+                    if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                        xhr.setRequestHeader("X-CSRFToken", csrf_token);
+                    }
+                }
+            });
+        </script>
+        {% endblock scripts%}
+
+    </body>
+</hmtl>

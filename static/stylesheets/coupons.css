@@ -1,0 +1,13 @@
+#coupons{
+    width: 90%;
+}
+
+a{
+    text-decoration: none;
+}
+
+@media screen and (max-width: 975px) {
+    #coupons {
+       width: 100%;
+    }
+}

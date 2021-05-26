@@ -1,0 +1,91 @@
+{% extends "index.html" %}
+{% block title %}Set PIN{% endblock title%}
+{% block css %} 
+<link  rel="stylesheet" type="text/css" href="{{ url_for('static', filename='stylesheets/setpin.css') }}">
+{% endblock css %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='scripts/formValidation.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/jsbn.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/prng4.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/rng.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/rsa.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/rsaEncryption.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/sha256.js') }}"></script> 
+<script>
+  document.getElementById("setPINButton").addEventListener("click",function(){
+    let confirmPIN = document.getElementById("confirmPIN").value;
+    let newPIN = document.getElementById("newPIN").value;
+    let newPIN_isnum = /^\d+$/.test(newPIN);
+    
+    if(validateForm("pinForm") && newPIN_isnum == true && confirmPIN==newPIN){
+      {% if set == "Reset" %}
+      let oriPIN = document.getElementById("oriPIN").value;
+      document.getElementById("encrypted_oriPIN").value = rsaEncryt(sha256(oriPIN));
+      {% endif %}
+      document.getElementById("encrypted_newPIN").value = rsaEncryt(sha256(newPIN));
+      document.getElementById("pinForm").reset();
+
+      document.getElementById("encrypted_PINForm").submit();
+    }else{
+        if (confirmPIN != newPIN){
+        document.getElementById("confirmpin-invalid-feedback").classList.add("d-block");
+        }
+        else{
+          document.getElementById("confirmpin-invalid-feedback").classList.remove("d-block");
+        }
+        if(newPIN_isnum == false){
+          document.getElementById("newpin-invalid-feedback").classList.add("d-block");
+        }else{
+          document.getElementById("newpin-invalid-feedback").classList.remove("d-block");
+        }
+    }
+  })
+</script>
+{% endblock scripts %}
+{% block content%}
+<form id="pinForm" class="shadow-lg p-3 mb-5 bg-body rounded mt-5 needs-validation" autocomplete="off" novalidate>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category,message in messages %}<div class="alert alert-{{category}}" role="alert" style="text-align: center;">{{message}}</div>{% endfor %}
+    {% endif %}
+  {% endwith %}
+  {% if set == "Reset" %} 
+  <div class="mb-3">
+    <label for="oriPIN" class="col-form-label">Original PIN</label>
+    <div class="ori-group">
+      <input type="password" style="width: 100%;" class="form-control" id="oriPIN" required maxlength="6" minlength="6">
+    </div>
+  </div>
+  {% endif %}
+  <div class="mb-3">
+    <label for="newPIN" class="col-form-label">New PIN</label>
+    <div class="input-group">
+      <input type="password" style="width: 100%;" class="form-control pinForm" id="newPIN" required maxlength="6" minlength="6">
+      <div id="new_PINhelp" class="form-text">Your PIN must be a 6 number long.</div>
+      <div class="invalid-feedback pinForm" id="newpin-invalid-feedback">
+        Please provide a valid PIN.
+      </div>
+    </div>
+  </div>
+  <div class="mb-3">
+    <label for="confirmPIN" class="col-form-label">Confirm PIN</label>
+    <div class="confirm-group">
+      <input type="password" style="width: 100%;" class="form-control pinForm" id="confirmPIN" required maxlength="6" minlength="6">
+      <div id="confirm_PINhelp" class="form-text">Your PIN must be same as above.</div>
+      <div class="invalid-feedback pinForm" id="confirmpin-invalid-feedback">
+        Your PIN are mismatch.
+      </div>
+    </div>
+  </div>
+  <input type="button" id="setPINButton" class="btn btn-success btn-lg mr-3" value="{{set}} PIN">
+  <a href="/account"><button type="button" class="btn btn-outline-success btn-lg">Back to account</button></a>
+</form>
+
+<form id="encrypted_PINForm" action="/set_the_pin" method="POST">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+  {% if set == "Reset" %}
+  <input type="hidden" id="encrypted_oriPIN" name="encrypted_oriPIN">
+  {% endif %}
+  <input type="hidden" id="encrypted_newPIN" name="encrypted_newPIN">
+</form>
+{% endblock content%}

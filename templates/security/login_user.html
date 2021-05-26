@@ -1,0 +1,81 @@
+{% extends "index.html" %}
+
+{% block title %}Login{% endblock title%}
+
+{% block css %} 
+<link  rel="stylesheet" type="text/css" href="{{ url_for('static', filename='stylesheets/login_user.css') }}">
+{% endblock css %}
+
+{% block scripts%}
+<script src="{{ url_for('static', filename='scripts/formValidation.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/jsbn.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/prng4.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/rng.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/rsa.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/rsaEncryption.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/sha256.js') }}"></script>
+<script>
+    document.getElementById("loginButton").addEventListener("click",function(){
+        if(validateForm("loginForm")){
+            let inputs = document.getElementsByClassName(`form-control loginForm`);
+            document.getElementById("encrypted_login_email").value = rsaEncryt(inputs[0].value);
+            document.getElementById("encrypted_login_password").value = rsaEncryt(sha256(inputs[1].value));
+            if(document.getElementById("remberLoginCheck").checked){
+                document.getElementById("remberLogin_Check").value = "True";
+            }else{
+                document.getElementById("remberLogin_Check").value = "False";
+            }
+            document.getElementById("loginForm").reset();
+
+            document.getElementById("encrypted_loginForm").submit();
+        }
+    });
+</script>
+{% endblock scripts%}
+
+{% block content%}
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-lg-6"><img class="mt-3 mx-auto" id="loginImg" src="image/undraw_secure_login_pdn4.svg"></div>
+            <div class="col-12 col-lg-6">
+                <form id="loginForm" class="shadow-lg p-3 mb-5 bg-body rounded mt-5 needs-validation" novalidate>
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category,message in messages %}<div class="alert alert-{{category}}" role="alert" style="text-align: center;">{{message}}</div>{% endfor %}
+                        {% endif %}
+                    {% endwith %} 
+                    <div class="mb-3">
+                      <label for="emailInput" class="form-label">Email:</label>
+                      <input type="email" class="form-control loginForm" id="emailInput" required>
+                      <div class="invalid-feedback loginForm">
+                        Please provide a valid email.
+                      </div>
+                    </div>
+                    <div class="mb-3">
+                      <label for="passwordInput" class="form-label">Password:</label>
+                      <input type="password" class="form-control loginForm" id="passwordInput" required>
+                      <div class="invalid-feedback loginForm">
+                        Please enter your password.
+                      </div>
+                    </div>
+					<div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" value="rememberLogin" id="remberLoginCheck">
+                        <label class="form-check-label" for="remberLoginCheck">
+                          Rember Login
+                        </label>
+                    </div>
+                    <button type="button" id="loginButton" class="btn btn-success btn-lg">Login Account</button>
+                    <button type="button" id="forgetPasswordButton" class="btn text-success btn-lg" >Forget Password</button>
+                    <a class="btn btn-dark mt-4 btn-lg" href="{{url_for('register')}}">Register Account</a>
+                </form>
+                <form id="encrypted_loginForm" method="POST" autocomplete="off" action="{{url_for('user_login')}}">
+                    <input type="hidden" id="encrypted_login_email" name="encrypted_login_email">
+                    <input type="hidden" id="encrypted_login_password" name="encrypted_login_password">
+                    <input type="hidden" id="remberLogin_Check" name="remberLogin_Check">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock content%}

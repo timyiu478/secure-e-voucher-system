@@ -1,0 +1,35 @@
+{% extends "index.html" %}
+{% block title %}Confirm Email{% endblock title%}
+{% block scripts%}
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="{{ url_for('static', filename='scripts/formValidation.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/jsbn.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/prng4.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/rng.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/rsa.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/rsaEncryption.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/qrcode.min.js') }}"></script>
+
+{% endblock scripts%}
+{% block content%}
+<div id="main" class="d-flex justify-content-center flex-wrap mt-1">
+
+    {% for transaction in transactions %}
+    <div class="card mx-auto mt-2 px-2" style="height: 65%;">
+        <h5 class="card-header">Transaction</h5>
+        <div class="card-body">
+            <h5 class="card-title  d-flex align-items-center  justify-content-center">
+                <p class="h2">{{transaction.from_name}}</p>
+                <i class="fas fa-long-arrow-alt-right fa-7x"></i>
+                <p class="h2">{{transaction.to_name}}</p>
+            </h5>
+        </div>
+        <p class="card-text">
+          <p class="h6">Coupon ID: {{transaction.coupon_id}}; Amount: {{transaction.coupon_amount}}; Time: {{transaction.timestamp.strftime("%m/%d/%Y, %H:%M:%S")}}</p>
+        </p>
+    </div>
+    {% endfor %}
+
+
+</div>
+{% endblock content%}

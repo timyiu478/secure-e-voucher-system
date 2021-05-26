@@ -1,0 +1,47 @@
+{% extends "index.html" %}
+{% block title %}Confirm Email{% endblock title%}
+{% block scripts%}
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="{{ url_for('static', filename='scripts/formValidation.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/jsbn.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/prng4.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/rng.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/rsa.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/rsaEncryption.js') }}"></script>
+<script>
+    document.getElementById("rseButton").addEventListener("click",function(){
+        if(validateForm("reSendEmailForm")){
+            document.getElementById("encrypted_rseEmailInput").value = rsaEncryt(document.getElementById("emailInput").value);
+            document.getElementById("reSendEmailForm").reset();
+
+            document.getElementById("encrypted_reSendEmailForm").submit();
+        }
+    });
+</script>
+{% endblock scripts%}
+{% block content%}
+<div>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category,message in messages %}<div class="alert alert-{{category}} mt-3 mx-auto" role="alert" style="text-align: center; width: 70%;">{{message}}</div>{% endfor %}
+        {% endif %}
+    {% endwith %}
+    {% if expired == True %}
+        <form id="reSendEmailForm" class="shadow-lg p-3 mb-5 bg-body rounded mt-5 mx-auto needs-validation" style="width: 70%;" novalidate>
+            <div class="mb-3">
+                <input type="email" value="" class="form-control reSendEmailForm" id="emailInput" placeholder="Email" required>
+                <div class="invalid-feedback reSendEmailForm">
+                  Please provide a valid email.
+                </div>
+              </div>
+            <button id="rseButton" type="button" class="btn btn-dark btn-lg mt-3 mx-auto d-block" style="text-align: center; width: 100%;">Resend confirm email</button>
+        </form>
+        <form id="encrypted_reSendEmailForm" method="POST" autocomplete="off" action="{{url_for('confirm_email')}}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/> 
+            <input type="hidden" id="encrypted_rseEmailInput" name="encrypted_rseEmailInput" required>
+        </form>       
+    {% else %}
+        <a href="{{url_for('login')}}" class="btn btn-outline-success btn-lg mt-3 mx-auto d-block" style="text-align: center; width: 70%;">Go to Login</a>
+    {% endif %} 
+</div>
+{% endblock content%}
